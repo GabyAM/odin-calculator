@@ -1,0 +1,30 @@
+body {
+    background-color: rgb(5, 5, 62);
+    display: flex;
+}
+
+.calculator {
+    margin: auto;
+    display: flex;
+    flex-basis: 350px;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.display {
+    height: 40px;
+}
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 3px;
+}
+
+.calc-button {
+    height: 50px;
+    width: 70px;
+    background-color: cornflowerblue;
+    text-align: center;
+}
