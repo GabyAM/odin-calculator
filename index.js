@@ -21,6 +21,10 @@ function display(input) {
     $display.textContent = input
 }
 
+function isFloat () {
+
+}
+
 function init() {
     let operation = '';
     let lastInput = '';
@@ -32,7 +36,7 @@ function init() {
     })
     const $operatorButtons = document.querySelectorAll('.calc-button.operator');
     $operatorButtons.forEach(button => button.onclick = () => {
-        if (!isNaN(lastInput)) {
+        if (!isNaN(lastInput) && lastInput !== '') {
             if(operation.includes(' ')) {
                 operation = getResultFromOperation(operation)
             }
@@ -41,12 +45,26 @@ function init() {
             display(operation)
         }
     })
+
+    const $dotButton = document.querySelector('.calc-button.dot');
+    $dotButton.onclick = () => {
+        if (!isNaN(lastInput) && !operation.includes('.')) {
+            operation += '.'
+            lastInput = '.'
+            display(operation)
+        }
+    }
     const $equalButton = document.querySelector('.calc-button.equal');
     $equalButton.onclick = () => {
-        if(Number(lastInput) !== NaN){
+        if(!isNaN(lastInput) && /\+|-|%|x/.test(operation)){
             const result = getResultFromOperation(operation);
-            display(result)
-            if(result === 'NOOOOOOO') operation = ''
+            operation = result
+            display(result.toString().slice(0, 7))
+            if(result === 'NOOOOOOO') {
+                operation = ''
+                document.querySelector('body').style.backgroundColor = 'red'
+                document.querySelectorAll('.calc-button').forEach(button => button.style.backgroundColor = 'orange')
+            }
         }
     }
     const $clearButton = document.querySelector('.calc-button.clear');
@@ -54,6 +72,21 @@ function init() {
         operation = '';
         lastInput = '';
         display('');
+    }
+
+    const $backspaceButton = document.querySelector('.calc-button.backspace');
+    $backspaceButton.onclick = () => {
+        operation = operation.slice(0, -1);
+        lastInput = operation[operation.length - 1]
+        display(operation)
+    }
+
+    const $powerButton = document.querySelector('.calc-button.power');
+    $powerButton.onclick = () => {
+        if(!isNaN(lastInput) && lastInput !== '') {
+            operation = Math.pow(Number(operation), 2) 
+            display(operation)
+        }
     }
 }
 
