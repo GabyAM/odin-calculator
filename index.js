@@ -5,87 +5,115 @@ function operate (numA, numB, operator) {
         return numA - numB
     } else if(operator === 'x') {
         return numA * numB
-    } else {
-        return numA / numB
-    }
-}
-
-function getResultFromOperation (operation) {
-    const values = operation.split(' ')
-    if(Number(values[2]) === 0 && values[1] === '%') return 'NOOOOOOO'
-    return operate(Number(values[0]), Number(values[2]), values[1]).toString()
+    } else return numA / numB;
 }
 
 function display(input) {
     const $display = document.querySelector('.display')
-    $display.textContent = input
-}
-
-function isFloat () {
-
+    $display.textContent = input.length > 17 ? `${input.slice(0,17)}...` : input
 }
 
 function init() {
-    let operation = '';
+    let firstNumber = '';
+    let secondNumber = '';
+    let operator = '';
     let lastInput = '';
+
     const $numberButtons = document.querySelectorAll('.calc-button.number');
     $numberButtons.forEach(button => button.onclick = () => {
-        operation += button.textContent
-        lastInput = button.textContent
-        display(operation)
+        if(operator === '') {
+            firstNumber += button.textContent;
+            display(firstNumber)
+        }
+        else {
+            secondNumber += button.textContent;
+            display(secondNumber)
+        }
+        lastInput = button.textContent;
     })
+
     const $operatorButtons = document.querySelectorAll('.calc-button.operator');
     $operatorButtons.forEach(button => button.onclick = () => {
         if (!isNaN(lastInput) && lastInput !== '') {
-            if(operation.includes(' ')) {
-                operation = getResultFromOperation(operation)
-            }
-            operation += button.textContent
-            lastInput = button.textContent 
-            display(operation)
+           if ( secondNumber === '') {
+                operator = button.textContent;
+           } else {
+                if(operator === '%' && secondNumber === '0') {
+                    display('NOOOOOOOO');
+                    firstNumber = '';
+                    secondNumber = '';
+                    operator = ''
+                } else {
+                    firstNumber = operate(Number(firstNumber), Number(secondNumber), operator).toString()
+                    operator = button.textContent;
+                    secondNumber = '';
+                }
+           }
+           display(operator)
+           lastInput = button.textContent;
         }
     })
 
     const $dotButton = document.querySelector('.calc-button.dot');
     $dotButton.onclick = () => {
-        if (!isNaN(lastInput) && !operation.includes('.')) {
-            operation += '.'
+        if (!isNaN(lastInput)) {
+            if(operator === '' && !firstNumber.includes('.')) {
+                firstNumber += '.'
+                display(firstNumber)
+            } else if(!secondNumber.includes('.')) {
+                secondNumber += '.'
+                display(secondNumber)
+            }
             lastInput = '.'
-            display(operation)
         }
     }
     const $equalButton = document.querySelector('.calc-button.equal');
     $equalButton.onclick = () => {
-        if(!isNaN(lastInput) && /\+|-|%|x/.test(operation)){
-            const result = getResultFromOperation(operation);
-            operation = result
-            display(result.toString().slice(0, 7))
-            if(result === 'NOOOOOOO') {
-                operation = ''
-                document.querySelector('body').style.backgroundColor = 'red'
-                document.querySelectorAll('.calc-button').forEach(button => button.style.backgroundColor = 'orange')
+        if(!isNaN(lastInput) && operator !== ''){
+            const result = operate(Number(firstNumber), Number(secondNumber), operator).toString()
+            if (result === 'Infinity') {
+                display('NOOOOOOO')
+            } else {
+                display(result);
             }
+            firstNumber = result;
+            secondNumber = '';
+            operator = '';
         }
     }
     const $clearButton = document.querySelector('.calc-button.clear');
     $clearButton.onclick = () => {
-        operation = '';
+        operator = '';
+        firstNumber = '';
+        secondNumber = '';
         lastInput = '';
         display('');
     }
 
     const $backspaceButton = document.querySelector('.calc-button.backspace');
     $backspaceButton.onclick = () => {
-        operation = operation.slice(0, -1);
-        lastInput = operation[operation.length - 1]
-        display(operation)
+        if(operator === '') {
+            firstNumber = firstNumber.slice(0, -1);
+        } else {
+            if(secondNumber === '') {
+                operator = ''
+            } else {
+            secondNumber = secondNumber.slice(0, -1)
+            }
+        }
+        display(`${firstNumber} ${operator} ${secondNumber}`)
     }
 
     const $powerButton = document.querySelector('.calc-button.power');
     $powerButton.onclick = () => {
         if(!isNaN(lastInput) && lastInput !== '') {
-            operation = Math.pow(Number(operation), 2) 
-            display(operation)
+            if(operator === '') {
+                firstNumber = Math.pow(Number(firstNumber), 2).toString()
+                display(firstNumber)
+            } else if (secondNumber !== '') {
+                secondNumber = Math.pow(Number(secondNumber), 2).toString()
+                display(secondNumber)
+            }
         }
     }
 }
