@@ -14,23 +14,34 @@ function display(input) {
 }
 
 function init() {
+    
     let firstNumber = '';
     let secondNumber = '';
     let operator = '';
     let lastInput = '';
 
-    const $numberButtons = document.querySelectorAll('.calc-button.number');
-    $numberButtons.forEach(button => button.onclick = () => {
+    function inputNumber(input) {
         if(operator === '') {
-            firstNumber += button.textContent;
+            firstNumber += input;
             display(firstNumber)
         }
         else {
-            secondNumber += button.textContent;
+            secondNumber += input;
             display(secondNumber)
         }
-        lastInput = button.textContent;
+        lastInput = input;
+    }
+
+    const $numberButtons = document.querySelectorAll('.calc-button.number');
+    $numberButtons.forEach(button => {
+        button.onclick = () => inputNumber(button.textContent)
     })
+
+    document.onkeydown = (event) => {
+        if(!isNaN(event.key)) {
+            inputNumber(event.key)
+        }
+    }
 
     const $operatorButtons = document.querySelectorAll('.calc-button.operator');
     $operatorButtons.forEach(button => button.onclick = () => {
