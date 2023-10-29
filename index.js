@@ -32,37 +32,45 @@ function init() {
         lastInput = input;
     }
 
+    function inputOperator(input) {
+        if (!isNaN(lastInput) && lastInput !== '') {
+            if ( secondNumber === '') {
+                 operator = input;
+            } else {
+                 if(operator === '%' && secondNumber === '0') {
+                     display('NOOOOOOOO');
+                     firstNumber = '';
+                     secondNumber = '';
+                     operator = ''
+                 } else {
+                     firstNumber = operate(Number(firstNumber), Number(secondNumber), operator).toString()
+                     operator = input;
+                     secondNumber = '';
+                 }
+            }
+            display(operator)
+            lastInput = input;
+         }
+    }
+
+    document.onkeydown = (event) => {
+        const key = event.key
+        if(!isNaN(key)) {
+            inputNumber(key)
+        }
+        else if(/\+|-|%|x/.test(key)) {
+            inputOperator(key)
+        }
+    }
+
     const $numberButtons = document.querySelectorAll('.calc-button.number');
     $numberButtons.forEach(button => {
         button.onclick = () => inputNumber(button.textContent)
     })
 
-    document.onkeydown = (event) => {
-        if(!isNaN(event.key)) {
-            inputNumber(event.key)
-        }
-    }
-
     const $operatorButtons = document.querySelectorAll('.calc-button.operator');
-    $operatorButtons.forEach(button => button.onclick = () => {
-        if (!isNaN(lastInput) && lastInput !== '') {
-           if ( secondNumber === '') {
-                operator = button.textContent;
-           } else {
-                if(operator === '%' && secondNumber === '0') {
-                    display('NOOOOOOOO');
-                    firstNumber = '';
-                    secondNumber = '';
-                    operator = ''
-                } else {
-                    firstNumber = operate(Number(firstNumber), Number(secondNumber), operator).toString()
-                    operator = button.textContent;
-                    secondNumber = '';
-                }
-           }
-           display(operator)
-           lastInput = button.textContent;
-        }
+    $operatorButtons.forEach(button => {
+        button.onclick = () => inputOperator(button.textContent)
     })
 
     const $dotButton = document.querySelector('.calc-button.dot');
