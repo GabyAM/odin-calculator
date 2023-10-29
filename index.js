@@ -5,7 +5,11 @@ function operate (numA, numB, operator) {
         return numA - numB
     } else if(operator === 'x') {
         return numA * numB
-    } else return numA / numB;
+    } else if(operator === '%') {
+        return numA / numB;
+    } else {
+        return Math.pow(numA, numB);
+    }
 }
 
 function display(input) {
@@ -20,6 +24,12 @@ function init() {
     let operator = '';
     let lastInput = '';
 
+    function setCalculatorError(type) {
+        type === 'division' ? display('NOOOOOOOO') : display('Too big!')
+        document.querySelectorAll('.calc-button').forEach(button => button.disabled = true)
+        $clearButton.disabled = false;
+    }
+    
     function inputNumber(input) {
         if(operator === '') {
             firstNumber += input;
@@ -38,10 +48,7 @@ function init() {
                  operator = input;
             } else {
                  if(operator === '%' && secondNumber === '0') {
-                     display('NOOOOOOOO');
-                     firstNumber = '';
-                     secondNumber = '';
-                     operator = ''
+                     setDivisionError()
                  } else {
                      firstNumber = operate(Number(firstNumber), Number(secondNumber), operator).toString()
                      operator = input;
@@ -53,13 +60,73 @@ function init() {
          }
     }
 
+    function inputDot() {
+        if (!isNaN(lastInput)) {
+            if(operator === '' && !firstNumber.includes('.')) {
+                firstNumber += '.'
+                display(firstNumber)
+            } else if(!secondNumber.includes('.')) {
+                secondNumber += '.'
+                display(secondNumber)
+            }
+            lastInput = '.'
+        }
+    }
+
+    function inputBackspace() {
+        if(operator === '') {
+            firstNumber = firstNumber.slice(0, -1);
+            display(firstNumber)
+        } else {
+            if(secondNumber === '') {
+                operator = ''
+                display(firstNumber)
+            } else {
+            secondNumber = secondNumber.slice(0, -1)
+            display(secondNumber)
+            }
+        }
+    }
+
+    function inputEqual() {
+        if (operator === '%' && secondNumber === '0') setCalculatorError('division')
+        if(!isNaN(lastInput) && operator !== ''){
+            const result = operate(Number(firstNumber), Number(secondNumber), operator).toString()
+            if(result.toString() === 'Infinity') setCalculatorError('infinity')
+            else display(result);
+            firstNumber = result;
+            secondNumber = '';
+            operator = '';
+        }
+    }
+
+    function inputClear() {
+        operator = '';
+        firstNumber = '';
+        secondNumber = '';
+        lastInput = '';
+        display('');
+        document.querySelectorAll('.calc-button').forEach(button => button.disabled = false)
+    }
+
     document.onkeydown = (event) => {
         const key = event.key
         if(!isNaN(key)) {
             inputNumber(key)
         }
-        else if(/\+|-|%|x/.test(key)) {
+        else if(/\+|-|%|x|\^/.test(key)) {
             inputOperator(key)
+        }
+        else if(key === '.') {
+            inputDot()
+        } 
+        else if (key === 'Backspace'){
+            inputBackspace()
+        }  
+        else if(key === 'Enter') {
+            inputEqual()
+        } else if(key === 'Escape') {
+            inputClear()
         }
     }
 
@@ -74,66 +141,20 @@ function init() {
     })
 
     const $dotButton = document.querySelector('.calc-button.dot');
-    $dotButton.onclick = () => {
-        if (!isNaN(lastInput)) {
-            if(operator === '' && !firstNumber.includes('.')) {
-                firstNumber += '.'
-                display(firstNumber)
-            } else if(!secondNumber.includes('.')) {
-                secondNumber += '.'
-                display(secondNumber)
-            }
-            lastInput = '.'
-        }
-    }
+    $dotButton.onclick = () => inputDot();
+
     const $equalButton = document.querySelector('.calc-button.equal');
     $equalButton.onclick = () => {
-        if(!isNaN(lastInput) && operator !== ''){
-            const result = operate(Number(firstNumber), Number(secondNumber), operator).toString()
-            if (result === 'Infinity') {
-                display('NOOOOOOO')
-            } else {
-                display(result);
-            }
-            firstNumber = result;
-            secondNumber = '';
-            operator = '';
-        }
+        inputEqual();
     }
     const $clearButton = document.querySelector('.calc-button.clear');
     $clearButton.onclick = () => {
-        operator = '';
-        firstNumber = '';
-        secondNumber = '';
-        lastInput = '';
-        display('');
+        inputClear();
     }
 
     const $backspaceButton = document.querySelector('.calc-button.backspace');
     $backspaceButton.onclick = () => {
-        if(operator === '') {
-            firstNumber = firstNumber.slice(0, -1);
-        } else {
-            if(secondNumber === '') {
-                operator = ''
-            } else {
-            secondNumber = secondNumber.slice(0, -1)
-            }
-        }
-        display(`${firstNumber} ${operator} ${secondNumber}`)
-    }
-
-    const $powerButton = document.querySelector('.calc-button.power');
-    $powerButton.onclick = () => {
-        if(!isNaN(lastInput) && lastInput !== '') {
-            if(operator === '') {
-                firstNumber = Math.pow(Number(firstNumber), 2).toString()
-                display(firstNumber)
-            } else if (secondNumber !== '') {
-                secondNumber = Math.pow(Number(secondNumber), 2).toString()
-                display(secondNumber)
-            }
-        }
+        inputBackspace();
     }
 }
 
