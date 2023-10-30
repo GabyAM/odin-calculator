@@ -53,9 +53,6 @@ function init() {
 
     function setCalculatorError(type) {
         type === 'division' ? display('NOOOOOOOO') : display('Too big!')
-        if (type === 'division') {
-            console.log('division error');
-        }
         document.querySelectorAll('.calc-button').forEach(button => button.disabled = true)
         $clearButton.disabled = false;
         updateUI('error');
@@ -150,7 +147,7 @@ function init() {
         if(!isNaN(key)) {
             inputNumber(key)
         }
-        else if(/\+|-|%|x|\^/.test(key)) {
+        else if(/\+|-|%|x|\^/.test(key.toLowerCase())) {
             inputOperator(key)
         }
         else if(key === '.') {
