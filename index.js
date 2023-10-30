@@ -17,6 +17,33 @@ function display(input) {
     $display.textContent = input.length > 17 ? `${input.slice(0,17)}...` : input
 }
 
+function updateUI(type) {
+    if(type === 'error'){
+        document.querySelector('header').style.backgroundColor = '#9e2a2b'
+        document.querySelector('body').style.backgroundColor = '#540b0e'
+        document.querySelector('.calculator').style.backgroundColor = '#fb8500'
+        document.querySelectorAll('.calc-button').forEach(button => {
+            button.style.backgroundColor = '#d62828';
+            button.style.color = 'white';
+        })
+        document.querySelectorAll('.calc-button.number').forEach(button => {
+            button.style.backgroundColor = '#ffb703';
+        })
+    }
+    else if(type === 'default') {
+        document.querySelector('header').style.backgroundColor = '#A9DEF9'
+        document.querySelector('body').style.backgroundColor = 'aliceblue'
+        document.querySelector('.calculator').style.backgroundColor = '#e4c1f9'
+        document.querySelectorAll('.calc-button').forEach(button => {
+            button.style.backgroundColor = '#d0f4de';
+            button.style.color = '#235789';
+        })
+        document.querySelectorAll('.calc-button.number').forEach(button => {
+            button.style.backgroundColor = '#fcf6bd';
+        })
+    }
+}
+
 function init() {
     
     let firstNumber = '';
@@ -26,8 +53,12 @@ function init() {
 
     function setCalculatorError(type) {
         type === 'division' ? display('NOOOOOOOO') : display('Too big!')
+        if (type === 'division') {
+            console.log('division error');
+        }
         document.querySelectorAll('.calc-button').forEach(button => button.disabled = true)
         $clearButton.disabled = false;
+        updateUI('error');
     }
     
     function inputNumber(input) {
@@ -46,16 +77,17 @@ function init() {
         if (!isNaN(lastInput) && lastInput !== '') {
             if ( secondNumber === '') {
                  operator = input;
+                 display(operator)
             } else {
                  if(operator === '%' && secondNumber === '0') {
-                     setDivisionError()
+                     setCalculatorError('division')
                  } else {
                      firstNumber = operate(Number(firstNumber), Number(secondNumber), operator).toString()
                      operator = input;
                      secondNumber = '';
+                     display(operator)
                  }
             }
-            display(operator)
             lastInput = input;
          }
     }
@@ -77,20 +109,23 @@ function init() {
         if(operator === '') {
             firstNumber = firstNumber.slice(0, -1);
             display(firstNumber)
+            lastInput = firstNumber[firstNumber.length - 1]
         } else {
             if(secondNumber === '') {
                 operator = ''
                 display(firstNumber)
+                lastInput = firstNumber[firstNumber.length - 1]
             } else {
             secondNumber = secondNumber.slice(0, -1)
             display(secondNumber)
+            lastInput = secondNumber[secondNumber.length - 1]
             }
         }
     }
 
     function inputEqual() {
         if (operator === '%' && secondNumber === '0') setCalculatorError('division')
-        if(!isNaN(lastInput) && operator !== ''){
+        else if(!isNaN(lastInput) && operator !== ''){
             const result = operate(Number(firstNumber), Number(secondNumber), operator).toString()
             if(result.toString() === 'Infinity') setCalculatorError('infinity')
             else display(result);
@@ -107,6 +142,7 @@ function init() {
         lastInput = '';
         display('');
         document.querySelectorAll('.calc-button').forEach(button => button.disabled = false)
+        
     }
 
     document.onkeydown = (event) => {
@@ -144,18 +180,18 @@ function init() {
     $dotButton.onclick = () => inputDot();
 
     const $equalButton = document.querySelector('.calc-button.equal');
-    $equalButton.onclick = () => {
-        inputEqual();
-    }
+    $equalButton.onclick = () => inputEqual();
+
     const $clearButton = document.querySelector('.calc-button.clear');
     $clearButton.onclick = () => {
         inputClear();
+        if($clearButton.style.color === 'white') {
+            updateUI('default')
+        }
     }
 
     const $backspaceButton = document.querySelector('.calc-button.backspace');
-    $backspaceButton.onclick = () => {
-        inputBackspace();
-    }
+    $backspaceButton.onclick = () => inputBackspace();
 }
 
 init()
